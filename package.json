@@ -1,0 +1,83 @@
+{
+  "name": "@react-hive/honey-hooks",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/React-Hive/honey-hooks/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/React-Hive/honey-hooks.git"
+  },
+  "author": "Mike Aliinyk <m.aliynik@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf dist coverage",
+    "test": "jest --coverage",
+    "build": "webpack --config webpack.config.mjs",
+    "prepublishOnly": "pnpm clean && pnpm test && pnpm build"
+  },
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.cjs"
+  },
+  "files": [
+    "dist",
+    "!dist/**/__mocks__",
+    "!dist/**/__tests__",
+    "!dist/**/jest*"
+  ],
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "dependencies": {
+    "@react-hive/honey-utils": "3.26.0",
+    "csstype": "3.2.3",
+    "lodash.throttle": "4.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@types/jest": "29.5.14",
+    "@types/lodash.throttle": "4.1.9",
+    "@types/node": "22.19.13",
+    "@types/react": "^19.2.14",
+    "copy-webpack-plugin": "13.0.1",
+    "eslint": "10.0.3",
+    "eslint-plugin-react": "7.37.5",
+    "jest": "29.7.0",
+    "jest-environment-jsdom": "29.7.0",
+    "prettier": "3.8.1",
+    "ts-jest": "29.4.6",
+    "ts-loader": "9.5.4",
+    "ts-node": "10.9.2",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.57.0",
+    "webpack": "5.105.4",
+    "webpack-cli": "7.0.1"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest-setup.ts"
+    ],
+    "testMatch": [
+      "**/src/**/__tests__/**/*.spec.ts?(x)"
+    ],
+    "moduleNameMapper": {
+      "^~/(.*)$": "<rootDir>/src/$1"
+    }
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11"
+  ]
+}
