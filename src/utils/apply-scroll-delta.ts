@@ -35,6 +35,7 @@ export const applyScrollDelta = ({
 
     if (next !== null) {
       nextX = next;
+      shouldScroll = true;
     }
   }
 
