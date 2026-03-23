@@ -1,13 +1,7 @@
 import type { RefObject } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 import type { Axis } from '@react-hive/honey-utils';
-import {
-  getXOverflowWidth,
-  getYOverflowHeight,
-  parse2DMatrix,
-  resolveAxisDelta,
-  resolveBoundedDelta,
-} from '@react-hive/honey-utils';
+import { resolveAxisDelta } from '@react-hive/honey-utils';
 import * as CSS from 'csstype';
 
 import type { Nullable } from './types';
@@ -18,110 +12,11 @@ import type {
   UseHoneyDragOnStartHandler,
 } from './use-honey-drag';
 import { useHoneyDrag } from './use-honey-drag';
+import { applyScrollDelta } from './utils';
 import type { UseHoneyResizeHandler } from './use-honey-resize';
 import { useHoneyResize } from './use-honey-resize';
 
-interface ResolveAxisTranslateOptions {
-  /**
-   * Drag delta for the axis (deltaX or deltaY).
-   */
-  delta: number;
-  /**
-   * Current translate value for the axis.
-   */
-  translate: number;
-  /**
-   * Visible container size for the axis (width or height).
-   */
-  containerSize: number;
-  /**
-   * Overflow size for the axis.
-   */
-  overflowSize: number;
-  /**
-   * Overscroll window percentage.
-   */
-  overscrollPct: number;
-}
-
-export const resolveAxisTranslate = ({
-  delta,
-  translate,
-  containerSize,
-  overflowSize,
-  overscrollPct,
-}: ResolveAxisTranslateOptions): Nullable<number> => {
-  if (overflowSize <= 0) {
-    return null;
-  }
-
-  const threshold = containerSize * (overscrollPct / 100);
-
-  return resolveBoundedDelta({
-    delta,
-    value: translate,
-    min: -(overflowSize + threshold),
-    max: threshold,
-  });
-};
-
-interface ApplyScrollDeltaOptions {
-  axis: Axis;
-  container: HTMLElement;
-  deltaX: number;
-  deltaY: number;
-  overscrollPct: number;
-}
-
-const applyScrollDelta = ({
-  axis,
-  container,
-  deltaX,
-  deltaY,
-  overscrollPct,
-}: ApplyScrollDeltaOptions): boolean => {
-  const { translateX, translateY } = parse2DMatrix(container);
-
-  let nextX = translateX;
-  let nextY = translateY;
-  let shouldScroll = false;
-
-  if (axis === 'x' || axis === 'both') {
-    const next = resolveAxisTranslate({
-      delta: deltaX,
-      translate: translateX,
-      containerSize: container.clientWidth,
-      overflowSize: getXOverflowWidth(container),
-      overscrollPct,
-    });
-
-    if (next !== null) {
-      nextX = next;
-      shouldScroll = true;
-    }
-  }
-
-  if (axis === 'y' || axis === 'both') {
-    const next = resolveAxisTranslate({
-      delta: deltaY,
-      translate: translateY,
-      containerSize: container.clientHeight,
-      overflowSize: getYOverflowHeight(container),
-      overscrollPct,
-    });
-
-    if (next !== null) {
-      nextY = next;
-      shouldScroll = true;
-    }
-  }
-
-  if (shouldScroll) {
-    container.style.transform = `translate(${nextX}px, ${nextY}px)`;
-  }
-
-  return shouldScroll;
-};
+export type HoneySyntheticScrollMode = 'default' | 'embedded';
 
 export interface UseHoneySyntheticScrollOptions<Element extends HTMLElement> extends Pick<
   UseHoneyDragHandlers<Element>,
@@ -161,21 +56,21 @@ export interface UseHoneySyntheticScrollOptions<Element extends HTMLElement> ext
    * block natural page scrolling.
    *
    * ### Modes
-   * - `'default'` — Applies restrictive interaction styles:
+   * - `default` - Applies restrictive interaction styles:
    *   - `overscroll-behavior: contain`
    *   - Axis-aware `touch-action` (`pan-y`, `pan-x`, or `none`)
    *
    *   Recommended for standalone synthetic scroll containers.
    *
-   * - `'embedded'` — Does not apply any interaction-blocking styles.
+   * - `embedded` - Does not apply any interaction-blocking styles.
    *
    *   Recommended when the container is integrated into another scrollable
    *   context (e.g. horizontal carousel inside a page), where native scroll
    *   chaining must remain intact.
    *
-   * @default 'default'
+   * @default default
    */
-  scrollMode?: 'default' | 'embedded';
+  mode?: HoneySyntheticScrollMode;
   /**
    * Whether to clear any applied translation transforms when the window resizes.
    *
@@ -246,7 +141,7 @@ export const useHoneySyntheticScroll = <Element extends HTMLElement>({
   overscrollPct = 0,
   onStartDrag,
   onEndDrag,
-  scrollMode = 'default',
+  mode = 'default',
   resetOnResize = true,
   enablePointerScroll = true,
   enabled = true,
@@ -260,24 +155,18 @@ export const useHoneySyntheticScroll = <Element extends HTMLElement>({
     [onStartDrag],
   );
 
-  /**
-   * Handles drag movement and applies clamped translation along the enabled axis or axes.
-   *
-   * For each axis:
-   * - Skip processing if there is no overflow.
-   * - Compute the candidate translate value from the drag delta.
-   * - Clamp movement within calculated min / max bounds.
-   */
   const handleOnMoveDrag = useCallback<UseHoneyDragOnMoveHandler<Element>>(
     container =>
       async ({ deltaX, deltaY }) => {
-        return applyScrollDelta({
+        applyScrollDelta({
           container,
           deltaX,
           deltaY,
           axis,
           overscrollPct,
         });
+
+        return true;
       },
     [axis, overscrollPct],
   );
@@ -313,7 +202,7 @@ export const useHoneySyntheticScroll = <Element extends HTMLElement>({
       return;
     }
 
-    if (scrollMode === 'default') {
+    if (mode === 'default') {
       const touchAction: CSS.Properties['touchAction'] =
         axis === 'x' ? 'pan-y' : axis === 'y' ? 'pan-x' : 'none';
 
@@ -348,7 +237,7 @@ export const useHoneySyntheticScroll = <Element extends HTMLElement>({
     }
 
     return () => {
-      if (scrollMode === 'default') {
+      if (mode === 'default') {
         container.style.removeProperty('overscroll-behavior');
         container.style.removeProperty('touch-action');
       }
@@ -357,7 +246,7 @@ export const useHoneySyntheticScroll = <Element extends HTMLElement>({
         container.removeEventListener('wheel', handleOnWheel);
       }
     };
-  }, [scrollMode, enabled, enablePointerScroll]);
+  }, [mode, enabled, enablePointerScroll]);
 
   return containerRef;
 };
