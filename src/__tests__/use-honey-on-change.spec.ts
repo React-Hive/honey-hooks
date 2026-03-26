@@ -4,7 +4,7 @@ import { useHoneyOnChange } from '../use-honey-on-change';
 
 describe('[useHoneyOnChange]: basic behavior', () => {
   it('should not call `onChange` on initial render', () => {
-    const changeSpy = jest.fn();
+    const changeSpy = vitest.fn();
 
     renderHook(() => useHoneyOnChange(null, changeSpy));
 
@@ -12,7 +12,7 @@ describe('[useHoneyOnChange]: basic behavior', () => {
   });
 
   it('should call `onChange` when the state changes', () => {
-    const changeSpy = jest.fn();
+    const changeSpy = vitest.fn();
 
     const state = {
       data: 'initial-state',
@@ -28,7 +28,7 @@ describe('[useHoneyOnChange]: basic behavior', () => {
   });
 
   it('should call cleanup function returned by `onChange` when state changes again', () => {
-    const changeCleanupSpy = jest.fn();
+    const changeCleanupSpy = vitest.fn();
 
     const state = {
       data: 'initial-state',

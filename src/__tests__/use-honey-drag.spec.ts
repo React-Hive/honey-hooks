@@ -13,9 +13,9 @@ describe('[useHoneyDrag]: mouse-based dragging interaction', () => {
   const { getDraggableElement, dispatchDraggableElementMouseEvent } = setupDraggableElement();
 
   it('should call all handlers during a successful mouse drag', async () => {
-    const startDragSpy = jest.fn((draggableElement: HTMLElement) => Promise.resolve(true));
-    const moveDragSpy = jest.fn((draggableElement: HTMLElement) => Promise.resolve(true));
-    const endDragSpy = jest.fn((draggableElement: HTMLElement) => Promise.resolve());
+    const startDragSpy = vitest.fn((draggableElement: HTMLElement) => Promise.resolve(true));
+    const moveDragSpy = vitest.fn((draggableElement: HTMLElement) => Promise.resolve(true));
+    const endDragSpy = vitest.fn((draggableElement: HTMLElement) => Promise.resolve());
 
     const draggableElement = getDraggableElement();
 
@@ -57,9 +57,9 @@ describe('[useHoneyDrag]: mouse-based dragging interaction', () => {
   });
 
   it('should not call move or end handlers when start returns false', async () => {
-    const startDragSpy = jest.fn(() => Promise.resolve(false));
-    const moveDragSpy = jest.fn(() => Promise.resolve(true));
-    const endDragSpy = jest.fn(() => Promise.resolve());
+    const startDragSpy = vitest.fn(() => Promise.resolve(false));
+    const moveDragSpy = vitest.fn(() => Promise.resolve(true));
+    const endDragSpy = vitest.fn(() => Promise.resolve());
 
     const draggableElement = getDraggableElement();
 
@@ -96,7 +96,7 @@ describe('[useHoneyDrag]: mouse-based dragging interaction', () => {
   });
 
   it('should pass correct delta and distance values in move context', async () => {
-    const moveDragSpy = jest.fn((context: UseHoneyDragOnMoveContext) => Promise.resolve(true));
+    const moveDragSpy = vitest.fn((context: UseHoneyDragOnMoveContext) => Promise.resolve(true));
 
     const draggableElement = getDraggableElement();
 
@@ -148,9 +148,9 @@ describe('[useHoneyDrag]: mouse-based dragging interaction', () => {
   });
 
   it('should not trigger any handlers when dragging is disabled via enabled is false', async () => {
-    const startDragSpy = jest.fn(() => Promise.resolve(true));
-    const moveDragSpy = jest.fn(() => Promise.resolve(true));
-    const endDragSpy = jest.fn(() => Promise.resolve());
+    const startDragSpy = vitest.fn(() => Promise.resolve(true));
+    const moveDragSpy = vitest.fn(() => Promise.resolve(true));
+    const endDragSpy = vitest.fn(() => Promise.resolve());
 
     const draggableElement = getDraggableElement();
 
@@ -188,9 +188,9 @@ describe('[useHoneyDrag]: mouse-based dragging interaction', () => {
   });
 
   it('should skip calling end handler when move handler returns false and `skipOnEndDragWhenStopped` is true', async () => {
-    const startDragSpy = jest.fn(() => Promise.resolve(true));
-    const moveDragSpy = jest.fn(() => Promise.resolve(false));
-    const endDragSpy = jest.fn(() => Promise.resolve());
+    const startDragSpy = vitest.fn(() => Promise.resolve(true));
+    const moveDragSpy = vitest.fn(() => Promise.resolve(false));
+    const endDragSpy = vitest.fn(() => Promise.resolve());
 
     const draggableElement = getDraggableElement();
 
@@ -232,9 +232,9 @@ describe('[useHoneyDrag]: touch-based dragging interaction', () => {
   const { getDraggableElement, dispatchDraggableElementTouchEvent } = setupDraggableElement();
 
   it('should call all handlers during a successful touch drag', async () => {
-    const startDragSpy = jest.fn((draggableElement: HTMLElement) => Promise.resolve(true));
-    const moveDragSpy = jest.fn((draggableElement: HTMLElement) => Promise.resolve(true));
-    const endDragSpy = jest.fn((draggableElement: HTMLElement) => Promise.resolve());
+    const startDragSpy = vitest.fn((draggableElement: HTMLElement) => Promise.resolve(true));
+    const moveDragSpy = vitest.fn((draggableElement: HTMLElement) => Promise.resolve(true));
+    const endDragSpy = vitest.fn((draggableElement: HTMLElement) => Promise.resolve());
 
     const draggableElement = getDraggableElement();
 
@@ -278,9 +278,9 @@ describe('[useHoneyDrag]: touch-based dragging interaction', () => {
   });
 
   it('should call all handlers when touch interaction is cancelled', async () => {
-    const startDragSpy = jest.fn(() => Promise.resolve(true));
-    const moveDragSpy = jest.fn(() => Promise.resolve(true));
-    const endDragSpy = jest.fn(() => Promise.resolve());
+    const startDragSpy = vitest.fn(() => Promise.resolve(true));
+    const moveDragSpy = vitest.fn(() => Promise.resolve(true));
+    const endDragSpy = vitest.fn(() => Promise.resolve());
 
     const draggableElement = getDraggableElement();
 

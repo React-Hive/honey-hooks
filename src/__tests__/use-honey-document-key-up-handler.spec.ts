@@ -8,7 +8,7 @@ export const dispatchDocumentKeyboardEvent = (eventName: string, eventData?: Key
 
 describe('[useHoneyDocumentKeyUp]: basic behavior', () => {
   it('should call the handler when the specified key is released', () => {
-    const keyUpSpy = jest.fn();
+    const keyUpSpy = vitest.fn();
 
     renderHook(() => useHoneyDocumentKeyUp(keyUpSpy, ['Escape']));
 
@@ -20,7 +20,7 @@ describe('[useHoneyDocumentKeyUp]: basic behavior', () => {
   });
 
   it('should not call the handler when the hook is disabled', () => {
-    const keyUpSpy = jest.fn();
+    const keyUpSpy = vitest.fn();
 
     renderHook(() =>
       useHoneyDocumentKeyUp(keyUpSpy, ['Tab'], {

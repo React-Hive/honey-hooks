@@ -1,5 +1,3 @@
-import '@testing-library/jest-dom';
-
 if (typeof Touch === 'undefined') {
   global.Touch = function TouchInit({ identifier, target, clientX, clientY }) {
     return {

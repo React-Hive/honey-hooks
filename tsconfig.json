@@ -1,18 +1,16 @@
 {
   "compilerOptions": {
     "rootDir": "./src",
+    "outDir": "./dist",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "node",
     "esModuleInterop": true,
     "jsx": "react",
-    "outDir": "./dist",
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "strict": true,
-    "types": ["node", "jest", "@testing-library/jest-dom"]
+    "types": ["node", "vitest/globals"]
   },
   "include": ["src"]
 }
