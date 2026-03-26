@@ -46,7 +46,7 @@ importers:
         specifier: 7.37.5
         version: 7.37.5(eslint@10.1.0)
       jsdom:
-        specifier: ^29.0.1
+        specifier: 29.0.1
         version: 29.0.1
       prettier:
         specifier: 3.8.1
