@@ -1,8 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { isFunction } from '@react-hive/honey-utils';
 import throttle from 'lodash.throttle';
 
-export type UseHoneyResizeHandler = () => void;
+type UseHoneyResizeCleanup = () => void;
+
+/**
+ * Callback invoked when the resize listener runs.
+ *
+ * May optionally return a cleanup function. When returned, that cleanup
+ * function is called before the next handler execution and when the hook
+ * is cleaned up.
+ */
+export type UseHoneyResizeHandler = () => UseHoneyResizeCleanup | undefined;
 
 interface UseHoneyResizeOptions {
   /**
@@ -32,10 +41,14 @@ interface UseHoneyResizeOptions {
 }
 
 /**
- * A hook that subscribes to the window `resize` event and invokes a handler function in response.
+ * Subscribes to the window `resize` event and invokes the provided handler.
  *
- * The handler can be optionally throttled to limit execution frequency, which is useful
- * for expensive layout calculations or DOM measurements.
+ * The handler may optionally return a cleanup function. When provided, the
+ * cleanup function is called before the next handler execution and when the
+ * hook is cleaned up, such as on unmount or when dependencies change.
+ *
+ * The handler can also be invoked immediately on mount and optionally
+ * throttled to reduce execution frequency for expensive layout work.
  *
  * @example
  * ```ts
@@ -44,27 +57,47 @@ interface UseHoneyResizeOptions {
  * }, { throttleTime: 200 });
  * ```
  *
- * @param handler - Callback invoked when the window is resized.
- * @param options - Configuration options controlling invocation timing and performance.
+ * @example
+ * ```ts
+ * useHoneyResize(() => {
+ *   const observer = createResizeSideEffect();
+ *
+ *   return () => {
+ *     observer.disconnect();
+ *   };
+ * }, { invokeOnMount: true });
+ * ```
+ *
+ * @param handler - Callback invoked when the resize listener runs.
+ * @param options - Configuration options controlling listener behavior.
  */
-
 export const useHoneyResize = (
   handler: UseHoneyResizeHandler,
   { invokeOnMount = false, throttleTime = 0, enabled = true }: UseHoneyResizeOptions = {},
 ) => {
+  const cleanupRef = useRef<ReturnType<UseHoneyResizeHandler>>(undefined);
+
   useEffect(() => {
     if (!enabled) {
       return;
     }
 
-    const handleResize: UseHoneyResizeHandler | ReturnType<typeof throttle> = throttleTime
-      ? throttle(handler, throttleTime)
-      : handler;
+    const runHandler = () => {
+      cleanupRef.current?.();
+
+      const cleanup = handler();
+
+      cleanupRef.current = isFunction(cleanup) ? cleanup : undefined;
+    };
+
+    const handleResize: typeof runHandler | ReturnType<typeof throttle> = throttleTime
+      ? throttle(runHandler, throttleTime)
+      : runHandler;
 
     window.addEventListener('resize', handleResize);
 
     if (invokeOnMount) {
-      handler();
+      runHandler();
     }
 
     return () => {
@@ -73,6 +106,9 @@ export const useHoneyResize = (
       }
 
       window.removeEventListener('resize', handleResize);
+
+      cleanupRef.current?.();
+      cleanupRef.current = undefined;
     };
-  }, [enabled, invokeOnMount, handler]);
+  }, [enabled, invokeOnMount, throttleTime, handler]);
 };

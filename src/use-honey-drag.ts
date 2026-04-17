@@ -240,9 +240,11 @@ export const useHoneyDrag = <Element extends HTMLElement>(
 
     let startX = 0;
     let startY = 0;
+
     let lastX = 0;
     let lastY = 0;
     let lastMoveTimeMs = 0;
+
     let velocityXPxMs = 0;
     let velocityYPxMs = 0;
 
@@ -265,14 +267,14 @@ export const useHoneyDrag = <Element extends HTMLElement>(
       velocityYPxMs = 0;
     };
 
-    const stopDrag = async (isTriggerOnEndDrag: boolean, e: MouseEvent | TouchEvent) => {
+    const stopDrag = async (shouldTriggerOnEndDrag: boolean, e: MouseEvent | TouchEvent) => {
       if (!isDragging) {
         return;
       }
 
       isDragging = false;
 
-      if (isTriggerOnEndDrag && onEndDrag) {
+      if (shouldTriggerOnEndDrag && onEndDrag) {
         const deltaX = lastX - startX;
         const deltaY = lastY - startY;
 
@@ -287,8 +289,8 @@ export const useHoneyDrag = <Element extends HTMLElement>(
       }
     };
 
-    const releaseDrag = async (isTriggerOnEndDrag: boolean, e: MouseEvent | TouchEvent) => {
-      await stopDrag(isTriggerOnEndDrag, e);
+    const releaseDrag = async (shouldTriggerOnEndDrag: boolean, e: MouseEvent | TouchEvent) => {
+      await stopDrag(shouldTriggerOnEndDrag, e);
 
       window.removeEventListener('mousemove', mouseMoveHandler, { capture: true });
       window.removeEventListener('mouseup', mouseUpHandler, { capture: true });
