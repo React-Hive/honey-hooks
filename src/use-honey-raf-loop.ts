@@ -182,13 +182,14 @@ export const useHoneyRafLoop = (
     onError,
   }: UseHoneyRafLoopOptions = {},
 ): HoneyRafLoopApi => {
+  const [isRunning, setIsRunning] = useState(false);
+  const isRunningRef = useRef(false);
+
   const rafIdRef = useRef<Nullable<number>>(null);
   const lastTimeMsRef = useRef<Nullable<number>>(null);
 
   const onFrameRef = useHoneyLatest(onFrame);
-
-  const [isRunning, setIsRunning] = useState(false);
-  const isRunningRef = useRef(false);
+  const onErrorRef = useHoneyLatest(onError);
 
   const stop = useCallback(() => {
     if (!isRunningRef.current) {
@@ -240,10 +241,10 @@ export const useHoneyRafLoop = (
 
         stop();
 
-        onError?.(e);
+        onErrorRef.current?.(e);
       }
     },
-    [maxDeltaMs, stop, onError],
+    [maxDeltaMs, stop],
   );
 
   const start = useCallback(() => {

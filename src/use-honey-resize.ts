@@ -2,20 +2,25 @@ import { useEffect, useRef } from 'react';
 import { isFunction } from '@react-hive/honey-utils';
 import throttle from 'lodash.throttle';
 
+import { useHoneyLatest } from './use-honey-latest';
+
+/**
+ * Cleanup function returned by the resize handler.
+ */
 type UseHoneyResizeCleanup = () => void;
 
 /**
  * Callback invoked when the resize listener runs.
  *
  * May optionally return a cleanup function. When returned, that cleanup
- * function is called before the next handler execution and when the hook
- * is cleaned up.
+ * function is called before the next successful handler execution and when
+ * the hook is cleaned up.
  */
 export type UseHoneyResizeHandler = () => UseHoneyResizeCleanup | undefined;
 
 interface UseHoneyResizeOptions {
   /**
-   * Whether to invoke the resize handler immediately on mount.
+   * Whether to invoke the resize handler immediately after the listener is attached.
    *
    * Useful when initial layout measurements should be performed
    * before any resize events occur.
@@ -24,16 +29,16 @@ interface UseHoneyResizeOptions {
    */
   invokeOnMount?: boolean;
   /**
-   * Throttle delay (in milliseconds) applied to the resize handler.
+   * Throttle delay, in milliseconds, applied to the resize handler.
    *
-   * When greater than `0`, the handler will be throttled using
-   * `lodash.throttle` to reduce invocation frequency.
+   * When greater than `0`, the resize listener is throttled using
+   * `lodash.throttle` to reduce execution frequency.
    *
    * @default 0
    */
   throttleTime?: number;
   /**
-   * Enables or disables the resize listener.
+   * Whether the resize listener should be active.
    *
    * @default true
    */
@@ -45,10 +50,13 @@ interface UseHoneyResizeOptions {
  *
  * The handler may optionally return a cleanup function. When provided, the
  * cleanup function is called before the next handler execution and when the
- * hook is cleaned up, such as on unmount or when dependencies change.
+ * hook is cleaned up, such as on unmount or when the effect re-runs.
  *
- * The handler can also be invoked immediately on mount and optionally
+ * The resize listener can be invoked immediately on mount and optionally
  * throttled to reduce execution frequency for expensive layout work.
+ *
+ * @param handler - Callback invoked when the resize listener runs.
+ * @param options - Configuration options controlling listener behavior.
  *
  * @example
  * ```ts
@@ -67,14 +75,12 @@ interface UseHoneyResizeOptions {
  *   };
  * }, { invokeOnMount: true });
  * ```
- *
- * @param handler - Callback invoked when the resize listener runs.
- * @param options - Configuration options controlling listener behavior.
  */
 export const useHoneyResize = (
   handler: UseHoneyResizeHandler,
   { invokeOnMount = false, throttleTime = 0, enabled = true }: UseHoneyResizeOptions = {},
 ) => {
+  const handlerRef = useHoneyLatest(handler);
   const cleanupRef = useRef<ReturnType<UseHoneyResizeHandler>>(undefined);
 
   useEffect(() => {
@@ -85,7 +91,7 @@ export const useHoneyResize = (
     const runHandler = () => {
       cleanupRef.current?.();
 
-      const cleanup = handler();
+      const cleanup = handlerRef.current();
 
       cleanupRef.current = isFunction(cleanup) ? cleanup : undefined;
     };
@@ -110,5 +116,5 @@ export const useHoneyResize = (
       cleanupRef.current?.();
       cleanupRef.current = undefined;
     };
-  }, [enabled, invokeOnMount, throttleTime, handler]);
+  }, [enabled, invokeOnMount, throttleTime]);
 };

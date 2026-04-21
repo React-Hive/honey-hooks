@@ -1,7 +1,14 @@
 import { useEffect } from 'react';
 
 import type { HoneyKeyboardEventCode } from './types';
+import { useHoneyLatest } from './use-honey-latest';
 
+/**
+ * Callback invoked when a matching `keyup` event is fired on the document.
+ *
+ * @param keyCode - Released key code from `KeyboardEvent.code`.
+ * @param e - Native keyboard event.
+ */
 export type UseHoneyDocumentOnKeyUpHandler = (
   keyCode: HoneyKeyboardEventCode,
   e: KeyboardEvent,
@@ -15,9 +22,10 @@ interface UseHoneyDocumentKeyUpOptions {
    */
   enabled?: boolean;
   /**
-   * Whether to call `preventDefault()` on matching keyup events.
+   * Whether to call `preventDefault()` on matching `keyup` events.
    *
-   * This is useful for suppressing default browser behavior (e.g., scrolling with Space key).
+   * This is useful for suppressing default browser behavior
+   * (for example, scrolling with the Space key).
    *
    * @default true
    */
@@ -25,14 +33,15 @@ interface UseHoneyDocumentKeyUpOptions {
 }
 
 /**
- * Hook for handling specific key up events on the `document` object.
+ * Subscribes to `keyup` events on the `document` and invokes the callback
+ * when one of the specified keys is released.
  *
- * This hook adds a `keyup` event listener at the document level and triggers the provided `keyUpHandler`
- * when one of the specified `listenKeys` is released.
+ * The hook keeps a stable document event listener and always uses the latest
+ * `onKeyUp` callback and `listenKeys` values without re-subscribing when they change.
  *
- * @param onKeyUp - The callback function invoked when a matching key is released.
- * @param listenKeys - An array of key codes (`KeyboardEvent.code`) to listen for.
- * @param options - Optional configuration to control event behavior and listener activation.
+ * @param onKeyUp - Callback invoked when a matching key is released.
+ * @param listenKeys - List of `KeyboardEvent.code` values to listen for.
+ * @param options - Listener behavior configuration.
  *
  * @example
  * ```tsx
@@ -49,6 +58,9 @@ export const useHoneyDocumentKeyUp = (
   listenKeys: HoneyKeyboardEventCode[],
   { enabled = true, preventDefault = true }: UseHoneyDocumentKeyUpOptions = {},
 ) => {
+  const onKeyUpRef = useHoneyLatest(onKeyUp);
+  const listenKeysRef = useHoneyLatest(listenKeys);
+
   useEffect(() => {
     if (!enabled) {
       return;
@@ -57,12 +69,12 @@ export const useHoneyDocumentKeyUp = (
     const handleKeyUp = (e: KeyboardEvent) => {
       const keyCode = e.code as HoneyKeyboardEventCode;
 
-      if (listenKeys.includes(keyCode)) {
+      if (listenKeysRef.current.includes(keyCode)) {
         if (preventDefault) {
           e.preventDefault();
         }
 
-        onKeyUp(keyCode, e);
+        onKeyUpRef.current(keyCode, e);
       }
     };
 
@@ -71,5 +83,5 @@ export const useHoneyDocumentKeyUp = (
     return () => {
       document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [onKeyUp, enabled, preventDefault]);
+  }, [enabled, preventDefault]);
 };
