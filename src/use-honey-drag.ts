@@ -238,7 +238,7 @@ export const useHoneyDrag = <Element extends HTMLElement>(
       return;
     }
 
-    const onMove = onMoveDragRef.current(draggableElement);
+    let onMove: Nullable<ReturnType<UseHoneyDragOnMoveHandler<Element>>> = null;
 
     let isDragging = false;
 
@@ -256,6 +256,8 @@ export const useHoneyDrag = <Element extends HTMLElement>(
       if (onStartDragRef.current && !(await onStartDragRef.current(draggableElement, e))) {
         return;
       }
+
+      onMove = onMoveDragRef.current(draggableElement);
 
       lastMoveTimeMs = performance.now();
 
@@ -290,11 +292,11 @@ export const useHoneyDrag = <Element extends HTMLElement>(
 
         await onEndDragRef.current(endContext, draggableElement, e);
       }
+
+      onMove = null;
     };
 
-    const releaseDrag = async (shouldTriggerOnEndDrag: boolean, e: MouseEvent | TouchEvent) => {
-      await stopDrag(shouldTriggerOnEndDrag, e);
-
+    const releaseDragEvents = () => {
       window.removeEventListener('mousemove', mouseMoveHandler, { capture: true });
       window.removeEventListener('mouseup', mouseUpHandler, { capture: true });
 
@@ -303,12 +305,18 @@ export const useHoneyDrag = <Element extends HTMLElement>(
       window.removeEventListener('touchcancel', touchCancelHandler, { capture: true });
     };
 
+    const releaseDrag = async (shouldTriggerOnEndDrag: boolean, e: MouseEvent | TouchEvent) => {
+      await stopDrag(shouldTriggerOnEndDrag, e);
+
+      releaseDragEvents();
+    };
+
     const mouseUpHandler = async (e: MouseEvent) => {
       await releaseDrag(true, e);
     };
 
     const moveHandler = async (clientX: number, clientY: number, e: MouseEvent | TouchEvent) => {
-      if (!isDragging) {
+      if (!isDragging || !onMove) {
         return;
       }
 
@@ -392,6 +400,8 @@ export const useHoneyDrag = <Element extends HTMLElement>(
     return () => {
       draggableElement.removeEventListener('mousedown', mouseDownHandler);
       draggableElement.removeEventListener('touchstart', touchStartHandler);
+
+      releaseDragEvents();
     };
   }, [enabled]);
 };
