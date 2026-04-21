@@ -1,6 +1,6 @@
 {
   "name": "@react-hive/honey-hooks",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "",
   "keywords": [],
   "bugs": {
@@ -37,7 +37,7 @@
     "react": "^19.0.0"
   },
   "dependencies": {
-    "@react-hive/honey-utils": "3.28.0",
+    "@react-hive/honey-utils": "3.30.0",
     "csstype": "3.2.3",
     "lodash.throttle": "4.1.1"
   },
@@ -56,7 +56,7 @@
     "ts-node": "10.9.2",
     "tsx": "4.21.0",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.58.2",
+    "typescript-eslint": "8.59.0",
     "vitest": "4.1.4",
     "webpack": "5.106.2",
     "webpack-cli": "7.0.2"

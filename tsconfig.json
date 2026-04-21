@@ -6,7 +6,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "esModuleInterop": true,
-    "jsx": "react",
+    "jsx": "react-jsxdev",
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "skipLibCheck": true,
