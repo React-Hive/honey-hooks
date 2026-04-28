@@ -1,3 +1,5 @@
+import '@testing-library/jest-dom/vitest';
+
 if (typeof Touch === 'undefined') {
   global.Touch = function TouchInit({ identifier, target, clientX, clientY }) {
     return {

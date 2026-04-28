@@ -11,3 +11,5 @@ export * from './use-honey-synthetic-scroll-y';
 export * from './use-honey-timer';
 export * from './use-honey-pending-targets';
 export * from './use-honey-object-url';
+export * from './use-honey-force-rerender';
+export * from './use-honey-drag-and-drop';
