@@ -244,7 +244,7 @@ export const useHoneyRafLoop = (
         onErrorRef.current?.(e);
       }
     },
-    [maxDeltaMs, stop],
+    [maxDeltaMs],
   );
 
   const start = useCallback(() => {
@@ -283,7 +283,7 @@ export const useHoneyRafLoop = (
     return () => {
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
-  }, [autoStart, resumeOnVisibility, start, stop]);
+  }, [autoStart, resumeOnVisibility, start]);
 
   return {
     isRunning,

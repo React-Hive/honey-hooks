@@ -3,21 +3,7 @@ import { useEffect, useState } from 'react';
 import type { Nullable } from './types';
 import { useHoneyLatest } from './use-honey-latest';
 import { useHoneyOnChange } from './use-honey-on-change';
-
-/**
- * Revokes an object URL asynchronously.
- *
- * Delaying revocation avoids conflicts with cases where the URL
- * may still be used during the current execution frame.
- *
- * @param url - Object URL to revoke.
- */
-const revokeObjectURL = (url: Nullable<string>) => {
-  if (url) {
-    // Revoke the URL asynchronously to avoid conflicts with its usage
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-  }
-};
+import { revokeObjectURL } from './utils';
 
 /**
  * Creates and manages an object URL for the provided `Blob` or `MediaSource`.
